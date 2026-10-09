@@ -1,0 +1,154 @@
+---
+title: "Subset Selection and Penalized Regression"
+subtitle: "Stat 243: Lab 5"
+author: "Insert Your Name Here"
+format: pdf
+editor: source
+---
+
+## Due: Friday, Oct 16th, 11am PT.
+
+## Instructions
+
+Problem sets are a (nearly) weekly opportunity to engage with ideas relevant to content taught so far in the course. As your are working through your problem set, make sure to "Render" the document early and often. Take a look at the PDF output, as this is what you will turn in on Gradescope. Make sure the output is fully readable and is something that you are proud of. Take care to make sure code, writing, and headers are formatted neatly and presentably. 
+
+## Collaborators
+
+I collaborated with... (list names of collaborators here).
+
+
+## Goals of this problem set
+
+* Practice with subset selection and penalized regression.
+
+**You are not allowed to use any generative AI models (like ChatGPT) on your problem set.**
+
+**The Honor Principle must guide your work on this problem set.**
+
+
+## Problem 0: Load packages
+
+Load any relevant packages needed for this problem set. I got you started.
+
+
+```{r}
+library(tidyverse)
+```
+
+
+# Part 1: ISLR Exercises
+
+
+## Problem 1
+
+Complete ISLR Exercise 6.6.1 (on pages 282-3).
+
+## Problem 2
+
+Complete ISLR Exercise 6.6.4 (on page 284).
+
+
+# Part 2: Applied Exercises
+
+## Problem 3
+
+The `College` data set from the `ISLR` package contains statistics for a large number of US Colleges from the 1995 issue of US News and World Report.
+
+Load the data with the following code:
+
+```{r}
+library(ISLR)
+data(College)
+```
+
+a. Create a 70-30 split of the data into a test and training set. Be sure to set a seed for reproducibility.
+
+b. Fit a linear model with all predictors on the training set.
+
+c. Fit a ridge regression model on the training set, with $\lambda$ chosen according to cross-validation. Show the path plots, as well as the plot the cross-validated MSE.
+
+d. Fit a lasso model on the training set, with $\lambda$ chosen by cross-validation. Show the path plots, as well as the plot the cross-validated MSE.
+
+e. Use the best subset algorithm from `regsubsets` to choose the best linear model.
+
+f. Use each of your models to predict the number of applications that Grinnell recieved in 1995. Which model most accurately predicted the number of applications? (Note that Grinnell is the 238th entry in the original `College` data frame).
+
+g. Compute RMSE for the models in parts (b) - (e) on the test set and compare the results.
+
+h. Typically, how accurately can we predict the number of college applicants that a college received? Does there appear to be much difference among the test errors from these 5 approaches on this data set?
+
+
+
+## Problem 4
+
+In this problem, we revisit the chemical `solubility` data explored in class. But this time, we will predict a chemical's solubility using all 228 predictors (including the 208 binary "fingerprints" that were omitted in the in-class analysis).
+
+Run the following code to load the data. Note that the data has been pre-split into a training set `solTrain` and a test set `solTest`
+
+```{r}
+library(AppliedPredictiveModeling)
+data(solubility)
+solTrain <- cbind(solTrainX, Solubility = solTrainY)
+solTest <- cbind(solTestX, Solubility = solTestY)
+```
+
+
+
+a. Fit a linear model for solubility on the training set. Determine how many variables have p-values less than 0.05.
+
+*Hint*: the data frame containing the p-values for each coefficient can be accessed using `$coefficients` on your linear model summary table. 
+
+
+b. Fit a ridge regression model on the training set, with $\lambda$ chosen according to cross-validation. Show the path plots, as well as the plot the cross-validated MSE.
+
+c. The `NumAtoms` and `NumBonds` variables have a correlation of 0.997 in the training set. Compare the coefficients on these two variables in the model you created in the part (b). Then compare the coefficients on these two variables in the linear model you created in part (a). 
+
+*Hint*: If you've saved the best lambda as `L` and your `glmnet` object as `my_rr`, you can access the coefficients on the ridge regression model using `coef(my_rr, L)`. 
+
+ 
+d. Fit a LASSO model on the training set, with $\lambda$ chosen according to cross-validation. Show the path plots, as well as the plot the cross-validated MSE.
+
+
+e. In the best LASSO model, how many variables were used? 
+
+*Hint*: The number of non-zero coefficients for each value of lambda can be accessed using `$nzero` on the cross-validated glmnet object.
+
+
+f. Compute RMSE for the models in parts (b) - (e) on the test set and compare the results. Which model performed best?
+
+
+
+
+## Problem 5
+
+
+Run the following code chunk to generates a simulated data set, according to the model:
+
+$$
+Y  = 2 +12 X - 6X^2 + X^3\qquad \epsilon \sim N(0,~2)
+$$
+
+```{r}
+set.seed(314)
+
+sim_data2 <- data.frame(x = rnorm(100, 2, 1))
+
+sim_data2$y <- 2 + 12*sim_data2$x - 6*(sim_data2$x)^2 + (sim_data2$x)^3 + rnorm(100,0, 2)
+```
+
+
+a. Create a scatterplot showing the relationship between X and Y.
+
+b. Modify the `sim_data2` data frame so that it contains predictor $X, X^2, X^3, \dots, X^{10}$. 
+
+c. Create a linear model for $Y$ as a function of $X, X^2, X^3, \dots, X^{10}$. Which predictors, if any, appear significant? What are the largest estimated coefficients in the model?
+
+d. Use the `regsubsets` function to perform best subset selection in order to choose the best model containing predictors $X, X^2, X^3, \dots, X^{10}$. Create plots showing the relationship between $C_p$ and the number of variables used.  Identify which variables should be used in the best model, according $C_p$.
+
+e. Fit the linear model using the variables selected in part d. Display the summary table. Which predictors, if any appear significant? What are the largest estimated coefficients in the model?
+
+f. Repeat the parts (d) and (e), but this time using backward selection. How does your answer compare to the results in parts (d) and (e)?
+
+g. Now fit a LASSO model using predictors $X, X^2, X^3, \dots, X^{10}$. Use cross-validation to select the optimal value of $\lambda$. Create a plot showing the cross-validated MSE as a function of $\lambda$. Which variables were selected in the optimal model? What are the largest coefficients in the optimal model?
+
+
